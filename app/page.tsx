@@ -1,10 +1,7 @@
-'use client';
-
-import '@telegram-apps/telegram-ui/dist/styles.css';
-import { AppRoot } from '@telegram-apps/telegram-ui';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import "@telegram-apps/telegram-ui/dist/styles.css";
+import { AppRoot, Avatar } from "@telegram-apps/telegram-ui";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -13,75 +10,48 @@ declare global {
 }
 
 const HomePage = () => {
-  const [userData, setUserData] = useState({ firstName: 'No Name', username: 'No Username' });
-  const [isLoading, setIsLoading] = useState(true);
+  const [username, setUsername] = useState<string>("No Username");
+  const [fullname, setFullname] = useState<string>("User_Fullname");
 
   useEffect(() => {
-    const loadTelegramSDK = async () => {
-      try {
-        const script = document.createElement('script');
-        script.src = 'https://telegram.org/js/telegram-web-app.js';
-        script.async = true;
-        document.body.appendChild(script);
+    const loadTelegramSDK = () => {
+      const script = document.createElement("script"); 
+      script.src = "https://telegram.org/js/telegram-web-app.js";
+      script.async = true;
+      document.body.appendChild(script);
 
-        script.onload = () => {
-          if (window.Telegram?.WebApp) {
-            const webApp = window.Telegram.WebApp;
-            const user = webApp.initDataUnsafe?.user;
-            setUserData({
-              firstName: user?.first_name ?? 'No Name',
-              username: user?.username ?? 'No Username',
-            });
-            setIsLoading(false);
+      script.onload = () => {
+        try {
+          const telegramWebApp = window.Telegram?.WebApp;
+          if (telegramWebApp) {
+            const username = telegramWebApp.initDataUnsafe?.user?.username ?? "all_multicode";
+            const fullname = telegramWebApp.initDataUnsafe?.user?.first_name ?? "User_Fullname";
+            setUsername(username);
+            setFullname(fullname);
           } else {
-            console.error('Telegram WebApp SDK not loaded');
-            setIsLoading(false);
+            console.error("Telegram WebApp is not available");
           }
-        };
+        } catch (error) {
+          console.error("Error accessing Telegram WebApp:", error);
+        }
+      };
 
-        script.onerror = () => {
-          console.error('Failed to load the Telegram WebApp SDK');
-          setIsLoading(false);
-        };
-      } catch (error) {
-        console.error('Error loading Telegram WebApp SDK', error);
-        setIsLoading(false);
-      }
+      script.onerror = () => {
+        console.error("Failed to load the Telegram WebApp SDK");
+      };
     };
 
     loadTelegramSDK();
-
-    return () => {
-      const script = document.querySelector('script[src="https://telegram.org/js/telegram-web-app.js"]');
-      if (script) {
-        document.body.removeChild(script);
-      }
-    };
   }, []);
 
   return (
     <AppRoot>
-      <div className="mainImageContainer">
-        <div className="imageWrapper">
-          <Image
-            src="https://t3.ftcdn.net/jpg/07/98/04/34/360_F_798043436_7GkBBaeiGdaT8cRJU1ormkq8vAGCB1Nf.jpg"
-            alt="Background Image"
-            width={1200}
-            height={600}
-            layout="intrinsic"
-          />
-        </div>
-        <div className="textOverlay">
-          {isLoading ? (
-            <b>Loading...</b>
-          ) : (
-            <>
-              <h1>{userData.firstName}</h1>
-              <p>@{userData.username}</p>
-            </>
-          )}
-        </div>
+      <div className="flex justify-center items-center mt-10">
+        <Avatar size={96} src={`https://t.me/i/userpic/320/${username}.jpg`} />
       </div>
+      <h1 className="text-lg text-center font-bold mt-5 text-black">{fullname}</h1>
+      <h3 className="text-base text-center font-medium text-black">@{username}</h3>
+      
     </AppRoot>
   );
 };
