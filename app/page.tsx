@@ -11,7 +11,7 @@ declare global {
 
 const HomePage = () => {
   const [username, setUsername] = useState<string>("No Username");
-  const [fullname, setFullname] = useState<string>("User_Fullname");
+  const [fullname, setFullname] = useState<string>("No First Name");
 
   useEffect(() => {
     const loadTelegramSDK = () => {
@@ -24,8 +24,8 @@ const HomePage = () => {
         try {
           const telegramWebApp = window.Telegram?.WebApp;
           if (telegramWebApp) {
-            const username = telegramWebApp.initDataUnsafe?.user?.username ?? "all_multicode";
-            const fullname = telegramWebApp.initDataUnsafe?.user?.first_name ?? "User_Fullname";
+            const username = telegramWebApp.initDataUnsafe?.user?.username ?? "Username";
+            const fullname = telegramWebApp.initDataUnsafe?.user?.first_name ?? "First Name";
             setUsername(username);
             setFullname(fullname);
           } else {
